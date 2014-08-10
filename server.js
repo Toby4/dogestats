@@ -1,12 +1,28 @@
 var http = require("http");
 var https = require("https");
+var fs = require("fs");
 var mongojs = require("mongojs");
 
 var host = "www.dogehouse.org"
 var path = "/index.php?page=api&action=getuserstatus&api_key=32a6dca2fba947e60920efde5c6589bc0450043e061c26b4b55409c99e8587e3&id=9288";
 
-var server = 8080;
+var port = 8080;
 var tick = 60000;
+
+function interface() {
+	var server = http.createServer();
+	server.on("request", function(request, response) {
+		response.writeHead(200, {"Content-type":"text/html"});
+
+		fs.readFile("index.html", function(err, data) {
+			response.write(data.toString());
+			response.end();
+		});
+	});
+
+	server.listen(port);
+}
+
 
 function data(response) {
 	var json = "";
@@ -45,3 +61,7 @@ function loop() {
 }
 
 call(); //go!
+interface();
+
+console.log("dogestats is running!");
+console.log("=====================");
