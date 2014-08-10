@@ -14,15 +14,35 @@ function interface() {
 	server.on("request", function(request, response) {
 		response.writeHead(200, {"Content-type":"text/html"});
 
-		fs.readFile("index.html", function(err, data) {
-			response.write(data.toString());
-			response.end();
-		});
+		var code = route(request.url, response);
+
 	});
 
 	server.listen(port);
 }
 
+function route(url, response) {
+
+	var file;
+	var code = "<tt><h1>404</h1></tt>";
+
+	switch(url) {
+		case "/":
+		var file = "index.html";
+		break;
+
+		case "/client.js":
+		var file = "client.js";
+		break;
+
+		case "/stats.json":
+		var code = json();
+	}
+}
+
+function json() {
+	return "{}";
+}
 
 function data(response) {
 	var json = "";
