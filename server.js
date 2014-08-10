@@ -6,7 +6,7 @@ var host = "www.dogehouse.org"
 var path = "/index.php?page=api&action=getuserstatus&api_key=32a6dca2fba947e60920efde5c6589bc0450043e061c26b4b55409c99e8587e3&id=9288";
 
 var server = 8080;
-var tick = 5000;
+var tick = 60000;
 
 function data(response) {
 	var json = "";
