@@ -12,8 +12,7 @@ var tick = 60000;
 function interface() {
 	var server = http.createServer();
 	server.on("request", function(request, response) {
-		response.writeHead(200, {"Content-type":"text/html"});
-
+		console.log(request.url);
 		var code = route(request.url, response);
 
 	});
@@ -24,19 +23,37 @@ function interface() {
 function route(url, response) {
 
 	var file;
-	var code = "<tt><h1>404</h1></tt>";
+	var code = "";
 
 	switch(url) {
 		case "/":
-		var file = "index.html";
+		response.writeHead(200, {"Content-type":"text/html"});
+		file = "index.html";
 		break;
 
 		case "/client.js":
-		var file = "client.js";
+		response.writeHead(200, {"Content-type":"text/javascript"});
+		file = "client.js";
 		break;
 
 		case "/stats.json":
-		var code = json();
+		response.writeHead(200, {"Content-type":"text/plain"});
+		code = json();
+
+		default:
+		response.writeHead(404);
+	}
+
+	if(file) {
+		fs.readFile(file, function(err, data) {
+			response.write(data);
+			response.end();
+			console.log(url + " - " + file);
+		});
+	} else {
+		response.write(code);
+		response.end();
+		console.log(url + " - " + code);
 	}
 }
 
