@@ -12,70 +12,48 @@ var tick = 60000;
 function interface() {
 	var server = http.createServer();
 	server.on("request", function(request, response) {
-		console.log(request.url);
-		var code = route(request.url, response);
+
+		switch(request.url) {
+			case "/":
+			response.writeHead(200, {"Content-type":"text/html"});
+			var file = "index.html";
+			break;
+
+			case "/client.js":
+			response.writeHead(200, {"Content-type":"text/javascript"});
+			var file = "client.js";
+			break;
+
+			case "/stats.json":
+			response.writeHead(200, {"Content-type":"text/plain"});
+			var code = json();
+
+			default:
+			response.writeHead(404);
+		}
+
+		if(file) {
+			fs.readFile(file, function(err, data) {
+				response.write(data);
+				response.end();
+				console.log(request.url + " - " + file);
+			});
+		} else {
+			response.write(code);
+			response.end();
+			console.log(request.url + " - " + code);
+		}
 
 	});
 
 	server.listen(port);
 }
 
-function route(url, response) {
-
-	var file;
-	var code = "";
-
-	switch(url) {
-		case "/":
-		response.writeHead(200, {"Content-type":"text/html"});
-		file = "index.html";
-		break;
-
-		case "/client.js":
-		response.writeHead(200, {"Content-type":"text/javascript"});
-		file = "client.js";
-		break;
-
-		case "/stats.json":
-		response.writeHead(200, {"Content-type":"text/plain"});
-		code = json();
-
-		default:
-		response.writeHead(404);
-	}
-
-	if(file) {
-		fs.readFile(file, function(err, data) {
-			response.write(data);
-			response.end();
-			console.log(url + " - " + file);
-		});
-	} else {
-		response.write(code);
-		response.end();
-		console.log(url + " - " + code);
-	}
-}
-
 function json() {
 	return "{}";
 }
 
-function data(response) {
-	var json = "";
-
-  	response.on("data", function(chunk) {
-    	json += chunk;
-  	});
-
-  	response.on("end", function() {
-  		var data = JSON.parse(json);
-  		console.log(data["getuserstatus"]["data"]["hashrate"]);
-  	});
-}
-
 function call(callback) {
-
 	https.get({
 
 		host: host,
@@ -83,12 +61,21 @@ function call(callback) {
 		rejectUnauthorized: false
 
 	}, function(res) {
-		data(res);
+		var json = "";
+
+	  	response.on("data", function(chunk) {
+	    	json += chunk;
+	  	});
+
+	  	response.on("end", function() {
+	  		var data = JSON.parse(json);
+	  		console.log(data["getuserstatus"]["data"]["hashrate"]);
+	  	});
+
 		loop();
 	}).on('error', function(e) {
   		console.error(e);
 	});
-
 }
 
 function loop() {
